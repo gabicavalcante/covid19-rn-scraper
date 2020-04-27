@@ -32,7 +32,7 @@ class CovidRNSpider(scrapy.Spider):
             "//div[@id='P000']/ul[1]/li/descendant-or-self::*[self::a[contains(@href, '.PDF')]]"
         )
 
-        for bulletin in bulletins[1:2]:
+        for bulletin in bulletins[:1]:
             data = {
                 "bulletin_titulo": bulletin.xpath(".//text()").extract_first(),
                 "bulletin_url": urljoin(
