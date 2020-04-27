@@ -1,0 +1,7 @@
+venv
+__pycache__/
+output/
+log/
+download/
+.DS_Store
+.vscode/
