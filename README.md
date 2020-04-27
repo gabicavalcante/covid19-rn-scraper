@@ -10,10 +10,31 @@ Os dados extraidos pelo scraper estão nos [boletins epidemiológicos](http://ww
 - [leobezerra](https://github.com/leobezerra): revisão e validação
 
 
-## Informações sobre o parser
+## Informações sobre o scraper
 
-No momento, o parser desenvolvido raspa os casos suspeitos e confirmados apresentados na Tabela 1. Adicionalmente, o parser pode adicionar coordenadas geográficas ao CSV produzido.
+No momento, o scraper raspa os boletins do último mês e faz a coleta dos casos suspeitos, descartados e confirmados apresentados na Tabela 1.
 
-- script: `rn-parser.py`
+- script: `corona_rn_spider.py`
 - dependências: `requirements.py`
-- arquivo base de coordenadas: coordenadas-rn.csv
+- dependências: `requirements-dev.py`
+- arquivo base de coordenadas: `coordenadas-rn.csv`
+
+## Rodar
+
+Para rodar o scraper basta executar no terminal:
+```
+$ sh collect.sh
+```
+
+Como resultado as seguites pastas vão ser criadas/atualizadas:
+
+- **download**: contém os pdfs baixados pelo crawler 
+- **log**: contém o arquivo de log 
+- **output**: contém o csv resultante do scraper 
+
+## TODO:
+  - [x] raspar links para os boletins
+  - [x] raspar casos suspeitos, descartados e confirmados
+  - [ ] adicionar coordenadas geográficas ao CSV produzido
+  - [ ] adicionar obitos
+  - [ ] pegar data dos boletins automaticamente 

@@ -91,12 +91,12 @@ class CovidRNSpider(scrapy.Spider):
                     confirmed = list(it.islice(confirmed.split("\n"), 0, None, 2))
 
                     dt = list(zip(cities, suspected, discarded, confirmed))
-                    for (a, b, c, d) in dt:
+                    for (cit, susp, disc, conf) in dt:
                         yield {
-                            "municipio": a,
-                            "suspeitos": change_format(b),
-                            "descartados": change_format(c),
-                            "confirmados": change_format(d),
+                            "municipio": cit,
+                            "suspeitos": change_format(susp),
+                            "descartados": change_format(disc),
+                            "confirmados": change_format(conf),
                         }
                 else:
                     city = clean(city)
