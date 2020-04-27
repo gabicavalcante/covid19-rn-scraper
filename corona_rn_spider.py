@@ -3,15 +3,15 @@ from urllib.parse import urljoin
 from pathlib import Path
 import rows
 
-SUSPEITOS = "CASOS SUSPEITOS"
-DESCARTADOS = "CASOS DESCARTADOS"
-CONFIRMADOS = "CASOS CONFIRMADOS"
+SUSPECTED = "CASOS SUSPEITOS"
+DISCARDED = "CASOS DESCARTADOS"
+CONFIRMED = "CASOS CONFIRMADOS"
 
-BULLETIN_TAG = (
-    "boletimcovid_19"
-    "epidemiologicosemana_epidemiologica_"
-    "01_a_17_de_2020"
-)
+
+tokens = [
+    "RN",
+    "Total Geral"
+]
 
 
 def clean(text):
@@ -32,7 +32,7 @@ class CovidRNSpider(scrapy.Spider):
             "//div[@id='P000']/ul[1]/li/descendant-or-self::*[self::a[contains(@href, '.PDF')]]"
         )
 
-        for bulletin in bulletins[:1]:
+        for bulletin in bulletins[1:2]:
             data = {
                 "bulletin_titulo": bulletin.xpath(".//text()").extract_first(),
                 "bulletin_url": urljoin(
@@ -59,9 +59,9 @@ class CovidRNSpider(scrapy.Spider):
         for row in rows.import_from_pdf(path):
             row = row._asdict()
             if (
-                SUSPEITOS in clean(row["field_1"])
-                and DESCARTADOS in clean(row["field_2"])
-                and CONFIRMADOS in clean(row["field_3"])
+                SUSPECTED in clean(row["field_1"])
+                and DISCARDED in clean(row["field_2"])
+                and CONFIRMED in clean(row["field_3"])
             ):
                 can_read = True
                 continue
@@ -74,5 +74,5 @@ class CovidRNSpider(scrapy.Spider):
                 data["confirmados"] = row["field_3"].split("\n")[0]
                 yield data
 
-            if city and city == "RN":
+            if city and any(city in text for text in tokens):
                 break
