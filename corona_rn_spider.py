@@ -2,21 +2,35 @@ import scrapy
 from urllib.parse import urljoin
 from pathlib import Path
 import rows
+import itertools as it
 
 SUSPECTED = "CASOS SUSPEITOS"
 DISCARDED = "CASOS DESCARTADOS"
 CONFIRMED = "CASOS CONFIRMADOS"
 
 
-tokens = [
-    "RN",
-    "Total Geral"
-]
+tokens = ["RN", "Total Geral"]
+
+
+def clean_cities(cities):
+    cities_it = iter(cities.replace("\n", ",").split(","))
+    ct = []
+    for city in cities_it:
+        if "(" in city and ")" not in city:
+            city = f"{city} {next(cities_it)}"
+        ct.append(city)
+    return ct
 
 
 def clean(text):
     if text:
         return text.replace("\n", " ").strip()
+    return ""
+
+
+def change_format(number):
+    if number:
+        return number.replace(",", ".")
     return ""
 
 
@@ -32,7 +46,7 @@ class CovidRNSpider(scrapy.Spider):
             "//div[@id='P000']/ul[1]/li/descendant-or-self::*[self::a[contains(@href, '.PDF')]]"
         )
 
-        for bulletin in bulletins[1:2]:
+        for bulletin in bulletins[0:1]:
             data = {
                 "bulletin_titulo": bulletin.xpath(".//text()").extract_first(),
                 "bulletin_url": urljoin(
@@ -69,15 +83,27 @@ class CovidRNSpider(scrapy.Spider):
             if can_read:
                 city = list(row.values())[0]
                 if len(city.split("\n")) > 3:
-                    city, suspected, discarded, confirmed = row
-                    for (a, b, c, d) in zip(city.split("\n"), suspected.split("\n"), discarded.split("\n"), confirmed.split("\n")):
-                        yield {"municipio": a, "suspeitos": b, "descartados": c, "confirmados": d}
+                    cities, suspected, discarded, confirmed = row.values()
+                    cities = clean_cities(cities)
+                    discarded = discarded.split("\n")
 
-                city = clean(city)
-                data["municipio"] = city
-                data["suspeitos"] = row["field_1"].split("\n")[0]
-                data["descartados"] = row["field_2"]
-                data["confirmados"] = row["field_3"].split("\n")[0]
+                    suspected = list(it.islice(suspected.split("\n"), 0, None, 2))
+                    confirmed = list(it.islice(confirmed.split("\n"), 0, None, 2))
+
+                    dt = list(zip(cities, suspected, discarded, confirmed))
+                    for (a, b, c, d) in dt:
+                        yield {
+                            "municipio": a,
+                            "suspeitos": change_format(b),
+                            "descartados": change_format(c),
+                            "confirmados": change_format(d),
+                        }
+                else:
+                    city = clean(city)
+                    data["municipio"] = city
+                    data["suspeitos"] = row["field_1"].split("\n")[0]
+                    data["descartados"] = row["field_2"]
+                    data["confirmados"] = row["field_3"].split("\n")[0]
                 yield data
 
             if city and any(city in text for text in tokens):
