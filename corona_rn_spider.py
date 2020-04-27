@@ -67,7 +67,13 @@ class CovidRNSpider(scrapy.Spider):
                 continue
 
             if can_read:
-                city = clean(list(row.values())[0])
+                city = list(row.values())[0]
+                if len(city.split("\n")) > 3:
+                    city, suspected, discarded, confirmed = row
+                    for (a, b, c, d) in zip(city.split("\n"), suspected.split("\n"), discarded.split("\n"), confirmed.split("\n")):
+                        yield {"municipio": a, "suspeitos": b, "descartados": c, "confirmados": d}
+
+                city = clean(city)
                 data["municipio"] = city
                 data["suspeitos"] = row["field_1"].split("\n")[0]
                 data["descartados"] = row["field_2"]
