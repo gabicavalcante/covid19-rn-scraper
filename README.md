@@ -28,7 +28,7 @@ $ sh collect.sh
 
 Como resultado as seguites pastas vão ser criadas/atualizadas:
 
-- **download**: contém os pdfs baixados pelo crawler 
+- **download**: contém os pdfs baixados pelo crawler (no momento, ele vai baixar o mais recente)
 - **log**: contém o arquivo de log 
 - **output**: contém o csv resultante do scraper 
 
