@@ -1,5 +1,7 @@
---only-binary pymupdf
+--only-binary pymupdf 
 
-# crawler
-scrapy 
 https://github.com/turicas/rows/archive/develop.zip#egg=rows
+cached-property
+pymupdf
+scrapy
+requests
